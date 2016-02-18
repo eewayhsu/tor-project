@@ -1379,10 +1379,22 @@ get_n_open_sockets(void)
 
 /** Mockable wrapper for getsockname(). */
 MOCK_IMPL(int,
-tor_getsockname,(tor_socket_t socket, struct sockaddr *address,
-                 socklen_t *address_len))
+tor_getsockname,(tor_socket_t socket, tor_addr_port_t *addr_out))
 {
-   return getsockname(socket, address, address_len);
+   //Convert sock_addr to tor_addr, and add into addr_out.
+   struct sockaddr_storage ss;
+   struct sockaddr *sa = (struct sockaddr*) &ss;
+   socklen_t size = sizeof(ss); 
+   int r = getsockname(socket, sa, &size);
+   if (r < 0) { return r;}
+    
+    tor_addr_t addr;
+    uint16_t port;
+
+    r = tor_addr_from_sockaddr(&addr, sa, &port);
+    tor_addr_port_t addr_port_t = {addr,port};
+    *addr_out = addr_port_t;
+    return r;
 }
 
 /** Turn <b>socket</b> into a nonblocking socket. Return 0 on success, -1

@@ -571,20 +571,20 @@ pretend_to_connect(tor_socket_t socket, const struct sockaddr *address,
 }
 
 static struct sockaddr *mock_addr = NULL;
-
+static struct tor_addr_port_t *mock_addr_out = NULL;
 static int
-fake_getsockname(tor_socket_t socket, struct sockaddr *address,
-                 socklen_t *address_len)
+fake_getsockname(tor_socket_t socket, tor_addr_port_t *mock_addr_out)
 {
-  socklen_t bytes_to_copy = 0;
   (void) socket;
 
-  if (!mock_addr)
+  if (!mock_addr_out){
     return -1;
+  }
 
-  if (mock_addr->sa_family == AF_INET) {
+  /*
+  if (mock_addr_out.addr->sa_family == AF_INET) {
     bytes_to_copy = sizeof(struct sockaddr_in);
-  } else if (mock_addr->sa_family == AF_INET6) {
+  } else if (mock_addr_out.addr->sa_family == AF_INET6) {
     bytes_to_copy = sizeof(struct sockaddr_in6);
   } else {
     return -1;
@@ -596,6 +596,7 @@ fake_getsockname(tor_socket_t socket, struct sockaddr *address,
 
   memcpy(address,mock_addr,bytes_to_copy);
   *address_len = bytes_to_copy;
+  */
 
   return 0;
 }
@@ -616,7 +617,13 @@ test_address_udp_socket_trick_whitebox(void *arg)
   MOCK(tor_getsockname,fake_getsockname);
 
   mock_addr = tor_malloc_zero(sizeof(struct sockaddr_storage));
-  sockaddr_in_from_string("23.32.246.118",(struct sockaddr_in *)mock_addr);
+  if(mock_addr){
+    tor_addr_t addr;
+    uint16_t port;
+    tor_addr_from_sockaddr(&addr, (struct sockaddr *)mock_addr, &port);
+    tor_addr_port_t addr_port_t = {addr, port};
+    *mock_addr_out = addr_port_t;
+  }
 
   hack_retval =
   get_interface_address6_via_udp_socket_hack(LOG_DEBUG,
@@ -708,7 +715,7 @@ test_address_udp_socket_trick_blackbox(void *arg)
   (void)addr4_to_check;
   (void)addr6_to_check;
   (void)addr6;
-  (void) retval_reference;
+  (void)retval_reference;
 #endif
 
   /* When family is neither AF_INET nor AF_INET6, we want _hack to

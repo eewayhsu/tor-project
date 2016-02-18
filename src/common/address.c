@@ -1613,7 +1613,9 @@ get_interface_address6_via_udp_socket_hack,(int severity,
     goto err;
   }
 
-  if (tor_getsockname(sock,(struct sockaddr*)&my_addr, &addr_len)) {
+  tor_addr_port_t addr_out;
+
+  if (tor_getsockname(sock,&addr_out)) {
     int e = tor_socket_errno(sock);
     log_fn(severity, LD_NET, "getsockname() to determine interface failed: %s",
            tor_socket_strerror(e));
@@ -1624,8 +1626,6 @@ get_interface_address6_via_udp_socket_hack,(int severity,
     if (tor_addr_is_loopback(addr) || tor_addr_is_multicast(addr)) {
       log_fn(severity, LD_NET, "Address that we determined via UDP socket"
                                " magic is unsuitable for public comms.");
-    } else {
-      r=0;
     }
  }
 

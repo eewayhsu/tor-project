@@ -115,6 +115,7 @@ aes_crypt(aes_cnt_cipher_t *cipher_, const char *input, size_t len,
 void
 aes_crypt_inplace(aes_cnt_cipher_t *cipher_, char *data, size_t len)
 {
+    log_notice(LD_CRYPTO, "Calling the other aes_crypt_inplace ln:118, aes.c");
   int outl;
   EVP_CIPHER_CTX *cipher = (EVP_CIPHER_CTX *) cipher_;
 
@@ -444,6 +445,7 @@ aes_crypt(aes_cnt_cipher_t *cipher, const char *input, size_t len,
 void
 aes_crypt_inplace(aes_cnt_cipher_t *cipher, char *data, size_t len)
 {
+    log_notice(LD_CRYPTO, "Calling aes_crypt_inplace ln:448 in aes.c");
   if (should_use_openssl_CTR) {
     aes_crypt(cipher, data, len, data);
     return;

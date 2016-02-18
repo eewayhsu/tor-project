@@ -459,9 +459,9 @@ tor_connect_socket,(tor_socket_t socket,const struct sockaddr *address,
                     socklen_t address_len));
 int get_n_open_sockets(void);
 
+struct tor_addr_port_t;
 MOCK_DECL(int,
-tor_getsockname,(tor_socket_t socket, struct sockaddr *address,
-                 socklen_t *address_len));
+tor_getsockname,(tor_socket_t socket, struct tor_addr_port_t *addr_out));
 
 #define tor_socket_send(s, buf, len, flags) send(s, buf, len, flags)
 #define tor_socket_recv(s, buf, len, flags) recv(s, buf, len, flags)
