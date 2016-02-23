@@ -578,7 +578,7 @@ fake_getsockname(tor_socket_t socket, tor_addr_port_t *mock_addr_out)
   (void) socket;
 
   if (!mock_addr_out){
-    return -1;
+    return -2;
   }
 
   /*
@@ -616,14 +616,15 @@ test_address_udp_socket_trick_whitebox(void *arg)
   MOCK(tor_connect_socket,pretend_to_connect);
   MOCK(tor_getsockname,fake_getsockname);
 
-  mock_addr = tor_malloc_zero(sizeof(struct sockaddr_storage));
-  if(mock_addr){
-    tor_addr_t addr;
-    uint16_t port;
-    tor_addr_from_sockaddr(&addr, (struct sockaddr *)mock_addr, &port);
-    tor_addr_port_t addr_port_t = {addr, port};
-    *mock_addr_out = addr_port_t;
-  }
+  mock_addr = tor_malloc(sizeof(struct sockaddr_storage));
+  sockaddr_in_from_string("23.32.246.118",(struct sockaddr_in *)mock_addr);   
+  mock_addr_out = tor_malloc(sizeof(tor_addr_port_t));
+ 
+  tor_addr_t addr;
+  uint16_t port;
+  tor_addr_from_sockaddr(&addr, (struct sockaddr *)mock_addr, &port);
+  tor_addr_port_t addr_port_t = {addr, port};
+  *mock_addr_out = addr_port_t;
 
   hack_retval =
   get_interface_address6_via_udp_socket_hack(LOG_DEBUG,
