@@ -941,3 +941,23 @@ hid_serv_get_responsible_directories(smartlist_t *responsible_dirs,
   return smartlist_len(responsible_dirs) ? 0 : -1;
 }
 
+char compute_hsdir_index_hash(const node_t *node, uint8_t period_num){
+    //TODO: H("node-idx" (int) | node_identity_digest (int) | shared_random |uint8_t (period_num)
+    char *node_identity_digest, *hsdir_index_hash;
+    const char *RSA_pub = //TODO;
+    crypto_digest(node_identity_digest, RSA_pub, strlen(RSA_pub));
+    const char *m = node->nodelist_idx | node_identity_digest | shared random | period_num;
+    crypto_digest256(hsdir_index_digest, const char *m, strlen(m), DIGEST_SHA3_256);
+    return hsdir_index_digest;
+}
+
+//outputs = smartlist_new();
+void compute_hsdir_index(smartlist_t *outputs, smartlist_t *nodes, smartlist_t *period_nums) {
+    //TODO: Figure out SMARTLIST_FOREACH_JOIN    
+    //smartlist *nodes = nodelist_get_list();
+    smartlist_reverse(period_nums)
+    SMARTLIST_FOREACH_BEGIN(nodes, const node_t *, node){
+        uint8_t *periodnum = smartlist_pop_last(period_nums);
+        smartlist_add(outputs, compute_hsdir_index_hash(node, period_num));
+        } SMARTLIST_FOREACH_END(node);
+    }

@@ -68,5 +68,8 @@ rend_data_t *rend_data_service_create(const char *onion_address,
                                       const char *pk_digest,
                                       const uint8_t *cookie,
                                       rend_auth_type_t auth_type);
+
+void compute_hsdir_index_hash(const node_t *node, int periodnum);
+void compute_hsdir_index(smartlist_t *outputs, smartlist_t *nodes, smartlist_t *periodnums);
 #endif
 
