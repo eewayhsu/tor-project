@@ -941,13 +941,47 @@ hid_serv_get_responsible_directories(smartlist_t *responsible_dirs,
   return smartlist_len(responsible_dirs) ? 0 : -1;
 }
 
+/* 
+0.3. Cipers 
+When we refer to "the hash of a public key", we mean the SHA-1 hash of the
+   DER encoding of an ASN.1 RSA public key (as specified in PKCS.1).
+
+4.1.5. Shared Random Value [SRVOTE]
+
+  Authorities include a shared random value (SRV) in their votes using the
+  following encoding for the previous and current value respectively:
+
+     "shared-rand-previous-value" SP NUM_REVEALS SP VALUE NL
+     "shared-rand-current-value" SP NUM_REVEALS SP VALUE NL
+
+  where VALUE is the actual shared random value encoded in hex (computed as
+  specified in section [SRCALC]. NUM_REVEALS is the number of reveal values
+  used to generate this SRV.
+
+  To maintain consistent ordering, the shared random values of the previous
+  period should be listed before the values of the current period.
+*/
+
 char compute_hsdir_index_hash(const node_t *node, uint8_t period_num){
-    //TODO: H("node-idx" (int) | node_identity_digest (int) | shared_random |uint8_t (period_num)
+    //H("node-idx" (int) | node_identity_digest (char) | shared_random (sr_srv_t) |uint8_t (period_num)
     char *node_identity_digest, *hsdir_index_hash;
+    sr_srv_t *srv = sr_state_get_current_srv();
     const char *RSA_pub = //TODO;
-    crypto_digest(node_identity_digest, RSA_pub, strlen(RSA_pub));
-    const char *m = node->nodelist_idx | node_identity_digest | shared random | period_num;
-    crypto_digest256(hsdir_index_digest, const char *m, strlen(m), DIGEST_SHA3_256);
+    crypto_digest(node_identity_digest, RSA_pub, strln(RSA_pub));
+   
+    size_t buf_size = 4 + DIGEST_LEN + DIGEST256_LEN + 1; 
+    char buf[buf_size];
+
+    set_uint32(buf, node->nodelist_idx);
+    pos = 4;
+    memcpy(buf + pos, node_identity_digest, DIGEST_LEN); 
+    pos += DIGEST_LEN;
+    memcpy(buf + pos, srv->value, DIGEST256_LEN);
+    memcpy(buf + pos + DIGEST256_LEN, &period_num, 1); 
+    pos += DIGEST256_LEN + 1;
+    
+    const char *m = buf;
+    crypto_digest256(hsdir_index_digest, m, pos, DIGEST_SHA3_256);
     return hsdir_index_digest;
 }
 
