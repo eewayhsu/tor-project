@@ -971,9 +971,9 @@ char compute_hsdir_index_hash(const node_t *node, uint8_t period_num){
    
     size_t buf_size = 4 + DIGEST_LEN + DIGEST256_LEN + 1; 
     char buf[buf_size];
-
-    set_uint32(buf, node->nodelist_idx);
-    pos = 4;
+    char nodestr[] = "node-idx";
+    memcpy(buf, nodestr, strln(nodestr))
+    pos = strln(nodestr);
     memcpy(buf + pos, node_identity_digest, DIGEST_LEN); 
     pos += DIGEST_LEN;
     memcpy(buf + pos, srv->value, DIGEST256_LEN);
