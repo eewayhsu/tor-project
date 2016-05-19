@@ -965,19 +965,19 @@ When we refer to "the hash of a public key", we mean the SHA-1 hash of the
 /*maybe this would be better void and passing into another function */
 
 char* compute_hsdir_index_hash(const node_t *node, uint64_t period_num, char *hsdir_index_hash){
-    //H("node-idx" (int) | node_identity_digest ed25519 id key of node (char) | shared_random (sr_srv_t) |uint64_t (period_num)
-    char *node_identity_digest;
+    //H("node-idx" (int) | node_identity ed25519 id key of node (char) | shared_random (sr_srv_t) |uint64_t (period_num)
+    ed25519_public_key_t *node_identity;
     sr_srv_t *srv = sr_state_get_current_srv();
-    const char *RSA_pub = //TODO;
-    crypto_digest(node_identity_digest, RSA_pub, strln(RSA_pub));
+
+  /*0. allocate memory for node_identity 1. get node->md->onion_curve25519_pkey (or.h) 2. use ed25519_public_key_from_curve25519_public_key (crypto_ed...) 3. convert public key into uint8 [len32] to char* 4. deallocate memory after use/
    
     size_t buf_size = 4 + DIGEST_LEN + DIGEST256_LEN + 1; 
     char buf[buf_size];
     char nodestr[] = "node-idx";
     memcpy(buf, nodestr, strln(nodestr))
     pos = strln(nodestr);
-    memcpy(buf + pos, node_identity_digest, DIGEST_LEN); 
-    pos += DIGEST_LEN;
+    memcpy(buf + pos, node_identity, ED25519_PUBKEY_LEN); 
+    pos += ED25519_PUBKEY_LEN;
     memcpy(buf + pos, srv->value, DIGEST256_LEN);
     memcpy(buf + pos + DIGEST256_LEN, &period_num, 8); 
     pos += DIGEST256_LEN + 8;
