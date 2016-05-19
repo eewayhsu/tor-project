@@ -962,8 +962,8 @@ When we refer to "the hash of a public key", we mean the SHA-1 hash of the
   period should be listed before the values of the current period.
 */
 
-char compute_hsdir_index_hash(const node_t *node, uint8_t period_num){
-    //H("node-idx" (int) | node_identity_digest (char) | shared_random (sr_srv_t) |uint8_t (period_num)
+char compute_hsdir_index_hash(const node_t *node, uint64_t period_num){
+    //H("node-idx" (int) | node_identity_digest (char) | shared_random (sr_srv_t) |uint64_t (period_num)
     char *node_identity_digest, *hsdir_index_hash;
     sr_srv_t *srv = sr_state_get_current_srv();
     const char *RSA_pub = //TODO;
@@ -977,8 +977,8 @@ char compute_hsdir_index_hash(const node_t *node, uint8_t period_num){
     memcpy(buf + pos, node_identity_digest, DIGEST_LEN); 
     pos += DIGEST_LEN;
     memcpy(buf + pos, srv->value, DIGEST256_LEN);
-    memcpy(buf + pos + DIGEST256_LEN, &period_num, 1); 
-    pos += DIGEST256_LEN + 1;
+    memcpy(buf + pos + DIGEST256_LEN, &period_num, 8); 
+    pos += DIGEST256_LEN + 8;
     
     const char *m = buf;
     crypto_digest256(hsdir_index_digest, m, pos, DIGEST_SHA3_256);
