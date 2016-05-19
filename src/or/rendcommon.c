@@ -962,14 +962,14 @@ When we refer to "the hash of a public key", we mean the SHA-1 hash of the
   period should be listed before the values of the current period.
 */
 
-/*maybe this would be better void and passing into another function */
+/*todo: maybe this would be better void and passing into another function */
 
 char* compute_hsdir_index_hash(const node_t *node, uint64_t period_num, char *hsdir_index_hash){
     //H("node-idx" (int) | node_identity ed25519 id key of node (char) | shared_random (sr_srv_t) |uint64_t (period_num)
     ed25519_public_key_t *node_identity;
     sr_srv_t *srv = sr_state_get_current_srv();
 
-  /*0. allocate memory for node_identity 1. get node->md->onion_curve25519_pkey (or.h) 2. use ed25519_public_key_from_curve25519_public_key (crypto_ed...) 3. convert public key into uint8 [len32] to char* 4. deallocate memory after use/
+  /*0. allocate memory for node_identity 1. get node->md->onion_curve25519_pkey (or.h) 2. use ed25519_public_key_from_curve25519_public_key (crypto_ed...) 3. convert public key into uint8 [len32] to char 4. deallocate memory after use*/
    
     size_t buf_size = 4 + DIGEST_LEN + DIGEST256_LEN + 1; 
     char buf[buf_size];
