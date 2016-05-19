@@ -962,9 +962,11 @@ When we refer to "the hash of a public key", we mean the SHA-1 hash of the
   period should be listed before the values of the current period.
 */
 
-char compute_hsdir_index_hash(const node_t *node, uint64_t period_num){
-    //H("node-idx" (int) | node_identity_digest (char) | shared_random (sr_srv_t) |uint64_t (period_num)
-    char *node_identity_digest, *hsdir_index_hash;
+/*maybe this would be better void and passing into another function */
+
+char* compute_hsdir_index_hash(const node_t *node, uint64_t period_num, char *hsdir_index_hash){
+    //H("node-idx" (int) | node_identity_digest ed25519 id key of node (char) | shared_random (sr_srv_t) |uint64_t (period_num)
+    char *node_identity_digest;
     sr_srv_t *srv = sr_state_get_current_srv();
     const char *RSA_pub = //TODO;
     crypto_digest(node_identity_digest, RSA_pub, strln(RSA_pub));
@@ -981,8 +983,8 @@ char compute_hsdir_index_hash(const node_t *node, uint64_t period_num){
     pos += DIGEST256_LEN + 8;
     
     const char *m = buf;
-    crypto_digest256(hsdir_index_digest, m, pos, DIGEST_SHA3_256);
-    return hsdir_index_digest;
+    crypto_digest256(hsdir_index_hash, m, pos, DIGEST_SHA3_256);
+    return hsdir_index_hash;
 }
 
 //outputs = smartlist_new();
@@ -991,7 +993,7 @@ void compute_hsdir_index(smartlist_t *outputs, smartlist_t *nodes, smartlist_t *
     //smartlist *nodes = nodelist_get_list();
     smartlist_reverse(period_nums)
     SMARTLIST_FOREACH_BEGIN(nodes, const node_t *, node){
-        uint8_t *periodnum = smartlist_pop_last(period_nums);
+        uint64_t *periodnum = smartlist_pop_last(period_nums);
         smartlist_add(outputs, compute_hsdir_index_hash(node, period_num));
         } SMARTLIST_FOREACH_END(node);
     }
