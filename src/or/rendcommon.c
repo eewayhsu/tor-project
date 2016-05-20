@@ -959,41 +959,35 @@ When we refer to "the hash of a public key", we mean the SHA-1 hash of the
   used to generate this SRV.
 
   To maintain consistent ordering, the shared random values of the previous
-  period should be listed before the values of the current period.
-*/
+  period should be listed before the values of the */
 
-/*todo: maybe this would be better void and passing into another function */
-
-char* compute_hsdir_index_hash(const node_t *node, uint64_t period_num, char *hsdir_index_hash){
-    //H("node-idx" (int) | node_identity ed25519 id key of node (char) | shared_random (sr_srv_t) |uint64_t (period_num)
-    ed25519_public_key_t *node_identity;
+void compute_hsdir_index_hash(const node_t *node, uint64_t period_num, char *hsdir_index_hash){
+    //H("node-idx" (int) | node_identity ed25519 id key of node (char) | shared_random (sr_srv_t) | period_num (uint64_t)
+    
+    char node_identity[DIGEST_LEN];
+    node_identity = node->identity;
     sr_srv_t *srv = sr_state_get_current_srv();
 
-  /*0. allocate memory for node_identity 1. get node->md->onion_curve25519_pkey (or.h) 2. use ed25519_public_key_from_curve25519_public_key (crypto_ed...) 3. convert public key into uint8 [len32] to char 4. deallocate memory after use*/
-   
     size_t buf_size = 4 + DIGEST_LEN + DIGEST256_LEN + 1; 
     char buf[buf_size];
     char nodestr[] = "node-idx";
-    memcpy(buf, nodestr, strln(nodestr))
-    pos = strln(nodestr);
-    memcpy(buf + pos, node_identity, ED25519_PUBKEY_LEN); 
-    pos += ED25519_PUBKEY_LEN;
+    memcpy(buf, nodestr, strlen(nodestr))
+    pos = strlen(nodestr);
+    memcpy(buf + pos, node_identity, DIGEST_LEN); 
+    pos += DIGEST_LEN;
     memcpy(buf + pos, srv->value, DIGEST256_LEN);
     memcpy(buf + pos + DIGEST256_LEN, &period_num, 8); 
     pos += DIGEST256_LEN + 8;
     
     const char *m = buf;
     crypto_digest256(hsdir_index_hash, m, pos, DIGEST_SHA3_256);
-    return hsdir_index_hash;
 }
 
 //outputs = smartlist_new();
-void compute_hsdir_index(smartlist_t *outputs, smartlist_t *nodes, smartlist_t *period_nums) {
-    //TODO: Figure out SMARTLIST_FOREACH_JOIN    
-    //smartlist *nodes = nodelist_get_list();
-    smartlist_reverse(period_nums)
-    SMARTLIST_FOREACH_BEGIN(nodes, const node_t *, node){
-        uint64_t *periodnum = smartlist_pop_last(period_nums);
-        smartlist_add(outputs, compute_hsdir_index_hash(node, period_num));
+void compute_hsdir_index(smartlist_t *outputs, smartlist_t *nodes, uint64_t period_num, sr_srv_t *srv) { 
+    smartlist_t *nodes = nodelist_get_list();
+    SMARTLIST_FOREACH_BEGIN(nodes, node_t *, node){
+    /*1)allocate a hsdir_index_hash 2) compute_hsdir_index_hash of node and periodnum into hsdir_index_hash*/
+        
         } SMARTLIST_FOREACH_END(node);
     }
