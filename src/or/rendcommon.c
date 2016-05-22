@@ -944,16 +944,20 @@ hid_serv_get_responsible_directories(smartlist_t *responsible_dirs,
 /** Both client and hidden service can use this function to upload or download
  * the descriptors.
  */
-void find_nodes(smartlist_t* final_nodes) {
+void find_nodes(smartlist_t* nodes) {
   for (int replicanum = 1; replicanum <= hsdir_n_replicas; replicanum++) {
-    compute_hs_index(replicanum);
+    //TODO: Harini
     // find first hsdir_spread_store_nodes
   }
 }
 
-void upload_descriptors(void) {
-  for (int replicanum = 1; replicanum <= hsdir_n_replicas; replicanum++) {
-    compute_hs_index(replicanum);
+void upload_descriptors(uint64_t period_num) {
+  uint64_t replica_num;
+  for (replica_num = 1; replica_num <= hsdir_n_replicas; replica_num++) {
+    size_t hash_size = 12 + 32 + 8 + 8;
+    char * hs_index_hash = tor_malloc(hash_size);
+      compute_hs_index_hash(hs_index_hash, replica_num);
+
     // upload descriptor to first hsdir_spread_store nodes
   }
 }
