@@ -961,9 +961,9 @@ When we refer to "the hash of a public key", we mean the SHA-1 hash of the
   To maintain consistent ordering, the shared random values of the previous
   period should be listed before the values of the */
 
-void compute_hsdir_index_hash(const node_t *node, uint64_t period_num, sr_srv_t *srv, char *hsdir_index_hash){
+int compute_hsdir_index_hash(const node_t *node, uint64_t period_num, sr_srv_t *srv, char *hsdir_index_hash){
     //H("node-idx" (int) | node_identity ed25519 id key of node (char) | shared_random (sr_srv_t) | period_num (uint64_t)
-    
+    int result;
     char node_identity[DIGEST_LEN];
     node_identity = node->identity;
 
@@ -979,10 +979,11 @@ void compute_hsdir_index_hash(const node_t *node, uint64_t period_num, sr_srv_t 
     pos += DIGEST256_LEN + 8;
     
     const char *m = buf;
-    crypto_digest256(hsdir_index_hash, m, pos, DIGEST_SHA3_256);
+    result = crypto_digest256(hsdir_index_hash, m, pos, DIGEST_SHA3_256);
+    return result;
 }
 
-void compute_hsdir_index(smartlist_t *outputs, smartlist_t *nodes, uint64_t period_num) { 
+int compute_hsdir_index(smartlist_t *outputs, smartlist_t *nodes, uint64_t period_num) { 
     sr_svr_t *srv = sr_state_get_current();
 
     smartlist_t *nodes = nodelist_get_list();
@@ -990,8 +991,14 @@ void compute_hsdir_index(smartlist_t *outputs, smartlist_t *nodes, uint64_t peri
     
         size_t hash_size = 8 + DIGEST_LEN + DIGEST256_LEN + 8;
         char * hsdir_index_hash = tor_malloc(hash_size);
-        compute_hsdir_index_hash(node, period_num, srv, hsdir_index_hash);
+        int result;
+        result = compute_hsdir_index_hash(node, period_num, srv, hsdir_index_hash);
+        if (result == 1) {
+           //hash failed
+           return 1}
         smartlist_add(outputs, hsdir_index_hash);
         tor_free(hsdir_index_hash);
         });
-    }
+    //successful
+    return 0;
+}
