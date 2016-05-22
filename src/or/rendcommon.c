@@ -995,7 +995,7 @@ int compute_hsdir_index(smartlist_t *outputs, smartlist_t *nodes, uint64_t perio
         result = compute_hsdir_index_hash(node, period_num, srv, hsdir_index_hash);
         if (result == 1) {
            //hash failed
-           return 1}
+           return 1;}
         smartlist_add(outputs, hsdir_index_hash);
         tor_free(hsdir_index_hash);
         });
