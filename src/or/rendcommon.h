@@ -68,5 +68,10 @@ rend_data_t *rend_data_service_create(const char *onion_address,
                                       const char *pk_digest,
                                       const uint8_t *cookie,
                                       rend_auth_type_t auth_type);
+
+void find_nodes(smartlist_t* final_nodes);
+
+void upload_descriptors(void);
+
 #endif
 

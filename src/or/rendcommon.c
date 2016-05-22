@@ -941,3 +941,19 @@ hid_serv_get_responsible_directories(smartlist_t *responsible_dirs,
   return smartlist_len(responsible_dirs) ? 0 : -1;
 }
 
+/** Both client and hidden service can use this function to upload or download
+ * the descriptors.
+ */
+void find_nodes(smartlist_t* final_nodes) {
+  for (int replicanum = 1; replicanum <= hsdir_n_replicas; replicanum++) {
+    compute_hs_index(replicanum);
+    // find first hsdir_spread_store_nodes
+  }
+}
+
+void upload_descriptors(void) {
+  for (int replicanum = 1; replicanum <= hsdir_n_replicas; replicanum++) {
+    compute_hs_index(replicanum);
+    // upload descriptor to first hsdir_spread_store nodes
+  }
+}
