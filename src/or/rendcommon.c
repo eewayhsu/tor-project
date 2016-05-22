@@ -961,17 +961,16 @@ When we refer to "the hash of a public key", we mean the SHA-1 hash of the
   To maintain consistent ordering, the shared random values of the previous
   period should be listed before the values of the */
 
-void compute_hsdir_index_hash(const node_t *node, uint64_t period_num, char *hsdir_index_hash){
+void compute_hsdir_index_hash(const node_t *node, uint64_t period_num, sr_srv_t *srv, char *hsdir_index_hash){
     //H("node-idx" (int) | node_identity ed25519 id key of node (char) | shared_random (sr_srv_t) | period_num (uint64_t)
     
     char node_identity[DIGEST_LEN];
     node_identity = node->identity;
-    sr_srv_t *srv = sr_state_get_current_srv();
 
-    size_t buf_size = 4 + DIGEST_LEN + DIGEST256_LEN + 1; 
+    size_t buf_size = 8 + DIGEST_LEN + DIGEST256_LEN + 8; 
     char buf[buf_size];
     char nodestr[] = "node-idx";
-    memcpy(buf, nodestr, strlen(nodestr))
+    memcpy(buf, nodestr, strlen(nodestr));
     pos = strlen(nodestr);
     memcpy(buf + pos, node_identity, DIGEST_LEN); 
     pos += DIGEST_LEN;
@@ -983,11 +982,16 @@ void compute_hsdir_index_hash(const node_t *node, uint64_t period_num, char *hsd
     crypto_digest256(hsdir_index_hash, m, pos, DIGEST_SHA3_256);
 }
 
-//outputs = smartlist_new();
-void compute_hsdir_index(smartlist_t *outputs, smartlist_t *nodes, uint64_t period_num, sr_srv_t *srv) { 
+void compute_hsdir_index(smartlist_t *outputs, smartlist_t *nodes, uint64_t period_num) { 
+    sr_svr_t *srv = sr_state_get_current();
+
     smartlist_t *nodes = nodelist_get_list();
-    SMARTLIST_FOREACH_BEGIN(nodes, node_t *, node){
-    /*1)allocate a hsdir_index_hash 2) compute_hsdir_index_hash of node and periodnum into hsdir_index_hash*/
-        
-        } SMARTLIST_FOREACH_END(node);
+    SMARTLIST_FOREACH_BEGIN(nodes, node_t *, node,{
+    
+        size_t hash_size = 8 + DIGEST_LEN + DIGEST256_LEN + 8;
+        char * hsdir_index_hash = tor_malloc(hash_size);
+        compute_hsdir_index_hash(node, period_num, srv, hsdir_index_hash);
+        smartlist_add(outputs, hsdir_index_hash);
+        tor_free(hsdir_index_hash);
+        });
     }
