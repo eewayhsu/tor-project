@@ -40,6 +40,20 @@ mock_rend_data(const char *onion_address)
   return rend_query;
 }
 
+static void 
+test_compute_hsdir_index(){
+  smartlist_t *hsdir_index_outputs = smartlist_new();
+  smartlist_t *nodes = NULL;
+  nodes = nodelist_get_list();
+  uint64_t period_num = 1;
+  
+  int result = compute_hsdir_index(hsdir_index_outputs, nodes, period_num);
+
+  tt_int_op(result, OP_EQ, 0);
+  done:
+  ;
+}
+
 static void
 test_rend_cache_lookup_entry(void *data)
 {
