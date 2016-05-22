@@ -966,7 +966,8 @@ int compute_hsdir_index_hash(const node_t *node, uint64_t period_num, sr_srv_t *
     int result;
     char node_identity[DIGEST_LEN];
     node_identity = node->identity;
-
+    
+    //buf size includes length of string and concatenated components to  create message m
     size_t buf_size = 8 + DIGEST_LEN + DIGEST256_LEN + 8; 
     char buf[buf_size];
     char nodestr[] = "node-idx";
@@ -980,6 +981,7 @@ int compute_hsdir_index_hash(const node_t *node, uint64_t period_num, sr_srv_t *
     
     const char *m = buf;
     result = crypto_digest256(hsdir_index_hash, m, pos, DIGEST_SHA3_256);
+    //returns 0 on success and 1 on failure of hash
     return result;
 }
 
@@ -994,11 +996,11 @@ int compute_hsdir_index(smartlist_t *outputs, smartlist_t *nodes, uint64_t perio
         int result;
         result = compute_hsdir_index_hash(node, period_num, srv, hsdir_index_hash);
         if (result == 1) {
-           //hash failed
+           //hash has failed
            return 1;}
         smartlist_add(outputs, hsdir_index_hash);
         tor_free(hsdir_index_hash);
         });
-    //successful
+    //all hashes are successful
     return 0;
 }
